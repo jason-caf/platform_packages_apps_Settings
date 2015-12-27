@@ -18,6 +18,7 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
     <!-- Fingerprint sensor locations.  Devices should configure their sensor location using
          config_fingerprintSensorLocation -->
     <string-array name="security_settings_fingerprint_sensor_locations" translatable="false">
@@ -25,5 +26,28 @@
         <item>@string/security_settings_fingerprint_sensor_location_front</item>
         <item>@string/security_settings_fingerprint_sensor_location_left</item>
         <item>@string/security_settings_fingerprint_sensor_location_right</item>
+    </string-array>
+
+    <!-- Buttons -->
+    <string-array name="action_entries" translatable="false">
+        <item>@string/action_nothing</item>
+        <item>@string/action_menu</item>
+        <item>@string/action_app_switch</item>
+        <item>@string/action_search</item>
+        <item>@string/action_voice_search</item>
+        <item>@string/action_in_app_search</item>
+        <item>@string/action_launch_camera</item>
+        <item>@string/action_last_app</item>
+    </string-array>
+
+    <string-array name="action_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
     </string-array>
 </resources>
