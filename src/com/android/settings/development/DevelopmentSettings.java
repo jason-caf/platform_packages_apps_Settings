@@ -365,8 +365,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private DashboardFeatureProvider mDashboardFeatureProvider;
     private DevelopmentSettingsEnabler mSettingsEnabler;
     private DevelopmentSwitchBarController mSwitchBarController;
-    private BugReportPreferenceController mBugReportController;
-    private BugReportInPowerPreferenceController mBugReportInPowerController;
     private TelephonyMonitorPreferenceController mTelephonyMonitorController;
     private CameraLaserSensorPreferenceController mCameraLaserSensorController;
 
@@ -404,8 +402,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
-        mBugReportController = new BugReportPreferenceController(getActivity());
-        mBugReportInPowerController = new BugReportInPowerPreferenceController(getActivity());
         mTelephonyMonitorController = new TelephonyMonitorPreferenceController(getActivity());
         mWebViewAppPrefController = new WebViewAppPreferenceController(getActivity());
         mVerifyAppsOverUsbController = new VerifyAppsOverUsbPreferenceController(getActivity());
@@ -438,8 +434,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             mEnableTerminal = null;
         }
 
-        mBugReportController.displayPreference(getPreferenceScreen());
-        mBugReportInPowerController.displayPreference(getPreferenceScreen());
         mTelephonyMonitorController.displayPreference(getPreferenceScreen());
         mWebViewAppPrefController.displayPreference(getPreferenceScreen());
         mEnableAdbController.displayPreference(getPreferenceScreen());
@@ -604,6 +598,11 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             mOtaDisabledOnce = true;
         }
 
+        if (Settings.Secure.getInt(cr,
+                Settings.Secure.BUGREPORT_IN_POWER_MENU, 0) == 1) {
+            Settings.Secure.putInt(cr, Settings.Secure.BUGREPORT_IN_POWER_MENU, 0);
+        }
+
         addDashboardCategoryPreferences();
     }
 
@@ -673,7 +672,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             pref.setEnabled(enabled && !mDisabledPrefs.contains(pref));
         }
         mEnableAdbController.enablePreference(enabled);
-        mBugReportInPowerController.enablePreference(enabled);
         mTelephonyMonitorController.enablePreference(enabled);
         mWebViewAppPrefController.enablePreference(enabled);
         mCameraLaserSensorController.enablePreference(enabled);
@@ -760,7 +758,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             @Override
             public void onReceive(Context context, Intent intent) {
                 mVerifyAppsOverUsbController.updatePreference();
-                updateBugreportOptions();
             }
         };
         LocalBroadcastManager.getInstance(getContext())
@@ -808,7 +805,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                     context.getPackageManager().getApplicationEnabledSetting(TERMINAL_APP_PACKAGE)
                             == PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
         }
-        mHaveDebugSettings |= mBugReportInPowerController.updatePreference();
         mHaveDebugSettings |= mTelephonyMonitorController.updatePreference();
         mHaveDebugSettings |= mCameraLaserSensorController.updatePreference();
         updateSwitchPreference(mKeepScreenOn, Settings.Global.getInt(cr,
@@ -843,7 +839,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         updateShowAllANRsOptions();
         updateShowNotificationChannelWarningsOptions();
         mVerifyAppsOverUsbController.updatePreference();
-        updateBugreportOptions();
         updateForceRtlOptions();
         updateLogdSizeValues();
         updateLogpersistValues();
@@ -882,7 +877,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             mBluetoothEnableInbandRinging.setChecked(true);
             onPreferenceTreeClick(mBluetoothEnableInbandRinging);
         }
-        mBugReportInPowerController.resetPreference();
         mEnableAdbController.resetPreference();
         resetDebuggerOptions();
         writeLogpersistOption(null, true);
@@ -1082,11 +1076,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 mEnableOemUnlock.checkRestrictionAndSetDisabled(UserManager.DISALLOW_FACTORY_RESET);
             }
         }
-    }
-
-    private void updateBugreportOptions() {
-        mBugReportController.enablePreference(true);
-        mBugReportInPowerController.updateBugreportOptions();
     }
 
     // Returns the current state of the system property that controls
@@ -2457,10 +2446,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     public boolean onPreferenceTreeClick(Preference preference) {
         if (Utils.isMonkeyRunning()) {
             return false;
-        }
-
-        if (mBugReportInPowerController.handlePreferenceTreeClick(preference)) {
-            return true;
         }
 
         if (mTelephonyMonitorController.handlePreferenceTreeClick(preference)) {
